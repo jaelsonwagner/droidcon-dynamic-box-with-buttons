@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,8 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.droicom.sample.textoverflowbutton.data.ButtonText
+import com.droicom.sample.textoverflowbutton.data.sampleButtonsText
+import com.droicom.sample.textoverflowbutton.ui.PhonePreview
+import com.droicom.sample.textoverflowbutton.ui.TabletPreview
 import com.droicom.sample.textoverflowbutton.ui.theme.TextOverflowButtonTheme
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,40 +48,45 @@ class MainActivity : ComponentActivity() {
 fun DynamicBoxWithButton(modifier: Modifier = Modifier) {
     var isOverflowing by remember { mutableStateOf(false) }
     if (!isOverflowing) {
-        HorizontalBox(modifier = modifier, onTextOverflow = { isOverflowing = it })
-    } else {
-        VerticalBox(modifier = modifier)
-    }
-}
-
-@Composable
-fun VerticalBox(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Button(onClick = {}) {
-            Text(
-                text = "Very long text that might overflow",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        Button(onClick = {}) {
-            Text(
-                text = "Another Button",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-fun HorizontalBox(modifier: Modifier = Modifier, onTextOverflow: (Boolean) -> Unit) {
-    Row(modifier = modifier) {
-        OverflowAwareButton(
-            text = "Very long text that might overflow",
-            onTextOverflow = onTextOverflow
+        HorizontalBox(
+            buttonsText = sampleButtonsText,
+            modifier = modifier,
+            onTextOverflow = { isOverflowing = it }
         )
-        OverflowAwareButton(text = "Another Button", onTextOverflow = onTextOverflow)
+    } else {
+        VerticalBox(buttonsText = sampleButtonsText, modifier = modifier)
+    }
+}
+
+@Composable
+fun VerticalBox( buttonsText: List<ButtonText>, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        buttonsText.forEach {
+            Button(onClick = {}) {
+                Text(
+                    text = it,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HorizontalBox(
+    buttonsText: List<ButtonText>,
+    modifier: Modifier = Modifier,
+    onTextOverflow: (Boolean) -> Unit
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        buttonsText.forEach { OverflowAwareButton(it, onTextOverflow) }
     }
 }
 
@@ -93,9 +107,17 @@ fun OverflowAwareButton(
     }
 }
 
-@Preview(showBackground = true)
+@PhonePreview
 @Composable
-fun DynamicBoxWithButtonPreview() {
+fun DynamicBoxWithButtonPhonePreview() {
+    TextOverflowButtonTheme {
+        DynamicBoxWithButton()
+    }
+}
+
+@TabletPreview
+@Composable
+fun DynamicBoxWithButtonTabletPreview() {
     TextOverflowButtonTheme {
         DynamicBoxWithButton()
     }
